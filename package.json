@@ -1,5 +1,20 @@
 {
   "name": "kysely-pglite",
+  "version": "0.1.0",
+  "description": "Kysely dialect for @electric-sql/pglite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dnlsandiego/kysely-pglite.git,"
+  },
+  "keywords": [
+    "@electric-sql/pglite",
+    "kysely",
+    "postgresql",
+    "wasm",
+    "database",
+    "sql"
+  ],
+  "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.cts",
@@ -31,5 +46,6 @@
     "prettier": "^3.3.3",
     "typescript": "^5.0.0",
     "vitest": "^2.0.3"
-  }
+  },
+  "author": "Daniel Sandiego"
 }
