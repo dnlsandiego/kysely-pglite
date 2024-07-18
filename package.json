@@ -1,0 +1,35 @@
+{
+  "name": "kysely-pglite",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "scripts": {
+    "build": "pkgroll",
+    "prepublishOnly": "pnpm run build",
+    "test": "vitest"
+  },
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "peerDependencies": {
+    "@electric-sql/pglite": "*",
+    "kysely": "*"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.1.5",
+    "kysely": "^0.27.4"
+  },
+  "devDependencies": {
+    "pkgroll": "^2.1.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.3"
+  }
+}
