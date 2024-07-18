@@ -21,6 +21,7 @@
   "scripts": {
     "build": "pkgroll",
     "prepublishOnly": "pnpm run build",
+    "prepublish": "pnpm run build",
     "test": "vitest"
   },
   "exports": {
