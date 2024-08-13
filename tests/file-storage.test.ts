@@ -9,16 +9,16 @@ type DB = {
 	}
 }
 
-const createDb = () => {
+const createDb = async () => {
 	// This will create a `pgdata` folder in the package's root dir during tests.
-	const { dialect } = new PGliteKysely('./pgdata')
+	const { dialect } = await PGliteKysely.create({ dataDir: './pgdata' })
 	return new Kysely<DB>({ dialect })
 }
 
 // TODO: flesh out tests, mostly needing a cleanup step to delete the `pgdata` dir after each test
 describe('file storage', { todo: true }, () => {
 	it('should persist creating tables', async () => {
-		const db = createDb()
+		const db = await createDb()
 		await db.schema
 			.createTable('groceries')
 			.addColumn('id', 'serial', (cb) => cb.primaryKey())

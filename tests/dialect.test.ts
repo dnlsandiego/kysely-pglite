@@ -9,8 +9,8 @@ const pgSchemas = [
 	{ name: 'public' },
 ]
 
-describe('kysely dialect', () => {
-	const { dialect } = new PGliteKysely()
+describe('kysely dialect', async () => {
+	const { dialect } = await PGliteKysely.create()
 	const db = new Kysely<DB>({ dialect })
 
 	type DB = {

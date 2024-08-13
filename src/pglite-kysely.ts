@@ -1,4 +1,5 @@
 import { PGlite, type PGliteOptions } from '@electric-sql/pglite'
+
 import {
 	Kysely,
 	PostgresAdapter,
@@ -10,7 +11,7 @@ import {
 import { PGliteDriver } from './pglite-driver'
 
 export class PGliteKysely {
-	#client: PGlite
+	client: PGlite
 	/**
 	 * Create a new PGliteKysely instance.
 	 * @param dataDir The directory to store the database files.
@@ -19,14 +20,37 @@ export class PGliteKysely {
 	 *                - A path to a local filesystem directory
 	 * @param options `PGliteOptions` options
 	 */
-	constructor(dataDir?: string, opts?: PGliteOptions) {
-		this.#client = new PGlite(dataDir, opts)
+	constructor(client: PGlite) {
+		this.client = client
+	}
+
+	static async create(opts?: PGliteOptions): Promise<PGliteKysely>
+	static async create(
+		dataDir?: string,
+		opts?: PGliteOptions,
+	): Promise<PGliteKysely>
+	static async create(
+		arg1?: string | PGliteOptions,
+		arg2?: PGliteOptions,
+	): Promise<PGliteKysely> {
+		let opts: PGliteOptions = {}
+		if (typeof arg1 === 'string') {
+			opts.dataDir = arg1
+			if (typeof arg2 === 'object') {
+				opts = { ...opts, ...arg2 }
+			}
+		}
+		if (typeof arg1 === 'object') {
+			opts = arg1
+		}
+		const pglite = await PGlite.create(opts)
+		return new PGliteKysely(pglite)
 	}
 
 	dialect: Dialect = {
 		createAdapter: () => new PostgresAdapter(),
 
-		createDriver: () => new PGliteDriver(this.#client),
+		createDriver: () => new PGliteDriver(this.client),
 
 		createIntrospector: (db: Kysely<any>) => new PostgresIntrospector(db),
 
