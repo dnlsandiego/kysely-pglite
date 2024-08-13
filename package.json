@@ -11,6 +11,7 @@
 		"database",
 		"sql"
 	],
+	"license": "MIT",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.mjs",
