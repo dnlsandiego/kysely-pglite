@@ -21,8 +21,8 @@ const db = new Kysely<DB>({ dialect })
 
 ```typescript
 const { dialect } = await KyselyPGlite.create('./path/to/pgdata', {
-	debug: 3,
-	relaxedDurability: true,
+  debug: 3,
+  relaxedDurability: true,
 })
 ```
 
@@ -35,17 +35,17 @@ Kysely migrations work well with `PGlite`. See example setup below:
 import { Kysely, Migration } from 'kysely'
 
 export const Migration20230801: Migration = {
-	async up(db: Kysely<any>) {
-		await db.schema
-			.createTable('user')
-			.ifNotExists()
-			.addColumn('id', 'serial', (cb) => cb.primaryKey())
-			.addColumn('name', 'text', (cb) => cb.notNull())
-			.execute()
-	},
-	async down(db: Kysely<any>) {
-		await db.schema.dropTable('user').execute()
-	},
+  async up(db: Kysely<any>) {
+    await db.schema
+      .createTable('user')
+      .ifNotExists()
+      .addColumn('id', 'serial', (cb) => cb.primaryKey())
+      .addColumn('name', 'text', (cb) => cb.notNull())
+      .execute()
+  },
+  async down(db: Kysely<any>) {
+    await db.schema.dropTable('user').execute()
+  },
 }
 ```
 
@@ -54,24 +54,24 @@ export const Migration20230801: Migration = {
 import { Kysely, Migration, sql } from 'kysely'
 
 export const Migration20230802: Migration = {
-	async up(db: Kysely<any>) {
-		await db.schema
-			.alterTable('user')
-			.addColumn('updatedAt', 'timestamp', (col) =>
-				col.defaultTo(sql`now()`).notNull(),
-			)
-			.addColumn('createdAt', 'timestamp', (col) =>
-				col.defaultTo(sql`now()`).notNull(),
-			)
-			.execute()
-	},
-	async down(db: Kysely<any>) {
-		await db.schema
-			.alterTable('user')
-			.dropColumn('updatedAt')
-			.dropColumn('createdAt')
-			.execute()
-	},
+  async up(db: Kysely<any>) {
+    await db.schema
+      .alterTable('user')
+      .addColumn('updatedAt', 'timestamp', (col) =>
+        col.defaultTo(sql`now()`).notNull(),
+      )
+      .addColumn('createdAt', 'timestamp', (col) =>
+        col.defaultTo(sql`now()`).notNull(),
+      )
+      .execute()
+  },
+  async down(db: Kysely<any>) {
+    await db.schema
+      .alterTable('user')
+      .dropColumn('updatedAt')
+      .dropColumn('createdAt')
+      .execute()
+  },
 }
 ```
 
@@ -82,8 +82,8 @@ import { Migration20250801 } from './2025-08-01-create-user-table.js'
 import { Migration20250802 } from './2025-08-02-update-user-table.js'
 
 export const migrations: Record<string, Migration> = {
-	'2025-08-02': Migration20250802,
-	'2025-08-01': Migration20250801,
+  '2025-08-02': Migration20250802,
+  '2025-08-01': Migration20250801,
 }
 ```
 
@@ -96,13 +96,13 @@ const { dialect } = await KyselyPGlite.create()
 export const db = new Kysely({ dialect })
 
 export const migrator = new Migrator({
-	db,
-	provider: {
-		async getMigrations() {
-			const { migrations } = await import('./migrations/')
-			return migrations
-		},
-	},
+  db,
+  provider: {
+    async getMigrations() {
+      const { migrations } = await import('./migrations/')
+      return migrations
+    },
+  },
 })
 ```
 
@@ -117,7 +117,7 @@ await migrator.migrateToLatest()
 const app = express()
 
 app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`)
+  console.log(`Example app listening on port ${port}`)
 })
 ```
 
