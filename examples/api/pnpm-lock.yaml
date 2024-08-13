@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@dnlsandiego/kysely-pglite':
-    specifier: ^0.2.1
-    version: 0.2.1(@electric-sql/pglite@0.2.0)(kysely@0.27.4)
   '@electric-sql/pglite':
     specifier: ^0.2.0
     version: 0.2.0
@@ -20,6 +17,9 @@ dependencies:
   kysely:
     specifier: ^0.27.4
     version: 0.27.4
+  kysely-pglite:
+    specifier: ^0.4.0
+    version: 0.4.0(@electric-sql/pglite@0.2.0)(kysely@0.27.4)
   tsx:
     specifier: ^4.17.0
     version: 4.17.0
@@ -30,16 +30,6 @@ devDependencies:
     version: 22.2.0
 
 packages:
-
-  /@dnlsandiego/kysely-pglite@0.2.1(@electric-sql/pglite@0.2.0)(kysely@0.27.4):
-    resolution: {integrity: sha512-NhSrLlGKmT1DelVievDOc6PZPbz21n56ke/pRRLvaufNXeb9NSgPf3SDPL+nOOVQVfS6NkGVvSoZ5rXPy0BC9w==, tarball: https://npm.pkg.github.com/download/@dnlsandiego/kysely-pglite/0.2.1/0564d306541084f599199d18cf05b2296a27a83e}
-    peerDependencies:
-      '@electric-sql/pglite': '*'
-      kysely: '*'
-    dependencies:
-      '@electric-sql/pglite': 0.2.0
-      kysely: 0.27.4
-    dev: false
 
   /@electric-sql/pglite@0.2.0:
     resolution: {integrity: sha512-9ckSTnr9ChwY03lojiHM3HIOKFen72koxo44hb94Qz/L9fNejg1riwbfl2ROghA/z4ntCuyT+Zwl5pkbrSX3Aw==}
@@ -321,6 +311,16 @@ packages:
   /hono@4.5.5:
     resolution: {integrity: sha512-fXBXHqaVfimWofbelLXci8pZyIwBMkDIwCa4OwZvK+xVbEyYLELVP4DfbGaj1aEM6ZY3hHgs4qLvCO2ChkhgQw==}
     engines: {node: '>=16.0.0'}
+    dev: false
+
+  /kysely-pglite@0.4.0(@electric-sql/pglite@0.2.0)(kysely@0.27.4):
+    resolution: {integrity: sha512-ugdX3fjCqVA8mRDKbLQFCWxd5wSi68hZEuugb0DuQHNaqZZI55UV9FhQPlBenJgGEIYG1QiICNM2/2CSuVeC/Q==}
+    peerDependencies:
+      '@electric-sql/pglite': '*'
+      kysely: '*'
+    dependencies:
+      '@electric-sql/pglite': 0.2.0
+      kysely: 0.27.4
     dev: false
 
   /kysely@0.27.4:

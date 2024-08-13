@@ -1,15 +1,8 @@
-import { PGliteKysely } from '@dnlsandiego/kysely-pglite'
 import { Kysely, Migrator } from 'kysely'
+import { KyselyPGlite } from 'kysely-pglite'
 import { DB } from './types'
 
-// This will use in-memory Postgres
-const { dialect } = new PGliteKysely('', {
-	debug: 3,
-	relaxedDurability: true,
-})
-
-// Pass in a path to persist the data to disk
-// const { dialect } = new PGlite("./path/to/pgdata");
+const { dialect } = await KyselyPGlite.create()
 
 export const db = new Kysely<DB>({ dialect })
 
