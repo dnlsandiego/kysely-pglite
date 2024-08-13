@@ -6,8 +6,8 @@ settings:
 
 devDependencies:
   '@electric-sql/pglite':
-    specifier: ^0.1.5
-    version: 0.1.5
+    specifier: ^0.2.0
+    version: 0.2.0
   kysely:
     specifier: ^0.27.4
     version: 0.27.4
@@ -34,8 +34,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.25
     dev: true
 
-  /@electric-sql/pglite@0.1.5:
-    resolution: {integrity: sha512-eymv4ONNvoPZQTvOQIi5dbpR+J5HzEv0qQH9o/y3gvNheJV/P/NFcrbsfJZYTsDKoq7DKrTiFNexsRkJKy8x9Q==}
+  /@electric-sql/pglite@0.2.0:
+    resolution: {integrity: sha512-9ckSTnr9ChwY03lojiHM3HIOKFen72koxo44hb94Qz/L9fNejg1riwbfl2ROghA/z4ntCuyT+Zwl5pkbrSX3Aw==}
     dev: true
 
   /@esbuild/aix-ppc64@0.20.2:

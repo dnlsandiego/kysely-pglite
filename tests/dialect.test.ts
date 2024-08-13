@@ -3,10 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { PGliteKysely } from '../src'
 
 const pgSchemas = [
+	{ name: 'information_schema' },
 	{ name: 'pg_catalog' },
 	{ name: 'pg_toast' },
 	{ name: 'public' },
-	{ name: 'information_schema' },
 ]
 
 describe('kysely dialect', () => {
