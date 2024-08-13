@@ -1,1 +1,1 @@
-export * from "./pglite-kysely";
+export * from './pglite-kysely'
