@@ -1,6 +1,6 @@
 import { Generated, Kysely } from 'kysely'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { PGliteKysely } from '../src'
+import { KyselyPGlite } from '../src'
 
 const pgSchemas = [
 	{ name: 'information_schema' },
@@ -10,7 +10,7 @@ const pgSchemas = [
 ]
 
 describe('kysely dialect', async () => {
-	const { dialect } = await PGliteKysely.create()
+	const { dialect } = await KyselyPGlite.create()
 	const db = new Kysely<DB>({ dialect })
 
 	type DB = {

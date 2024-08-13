@@ -1,6 +1,6 @@
 import { Generated, Kysely } from 'kysely'
 import { describe, it } from 'vitest'
-import { PGliteKysely } from '../src'
+import { KyselyPGlite } from '../src'
 
 type DB = {
 	groceries: {
@@ -11,7 +11,7 @@ type DB = {
 
 const createDb = async () => {
 	// This will create a `pgdata` folder in the package's root dir during tests.
-	const { dialect } = await PGliteKysely.create({ dataDir: './pgdata' })
+	const { dialect } = await KyselyPGlite.create({ dataDir: './pgdata' })
 	return new Kysely<DB>({ dialect })
 }
 

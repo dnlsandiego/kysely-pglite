@@ -10,10 +10,10 @@ import {
 
 import { PGliteDriver } from './pglite-driver'
 
-export class PGliteKysely {
+export class KyselyPGlite {
 	client: PGlite
 	/**
-	 * Create a new PGliteKysely instance.
+	 * Create a new KyselyPGlite instance.
 	 * @param dataDir The directory to store the database files.
 	 *                - A string with `idb://` prefix to use IndexedDB filesystem in the browser
 	 *                - `memory://` to use in-memory filesystem
@@ -24,15 +24,15 @@ export class PGliteKysely {
 		this.client = client
 	}
 
-	static async create(opts?: PGliteOptions): Promise<PGliteKysely>
+	static async create(opts?: PGliteOptions): Promise<KyselyPGlite>
 	static async create(
 		dataDir?: string,
 		opts?: PGliteOptions,
-	): Promise<PGliteKysely>
+	): Promise<KyselyPGlite>
 	static async create(
 		arg1?: string | PGliteOptions,
 		arg2?: PGliteOptions,
-	): Promise<PGliteKysely> {
+	): Promise<KyselyPGlite> {
 		let opts: PGliteOptions = {}
 		if (typeof arg1 === 'string') {
 			opts.dataDir = arg1
@@ -44,7 +44,7 @@ export class PGliteKysely {
 			opts = arg1
 		}
 		const pglite = await PGlite.create(opts)
-		return new PGliteKysely(pglite)
+		return new KyselyPGlite(pglite)
 	}
 
 	dialect: Dialect = {

@@ -6,13 +6,13 @@
 
 ```typescript
 import { Kysely } from 'kysely'
-import { PGliteKysely } from 'kysely-pglite'
+import { KyselyPGlite } from 'kysely-pglite'
 
 // This will use in-memory Postgres
-const { dialect } = await PGliteKysely.create()
+const { dialect } = await KyselyPGlite.create()
 
 // For persisting the data to disk, pass in a path to a directory
-// const { dialect } = await PGliteKysely.create('./path/to/pgdata')
+// const { dialect } = await KyselyPGlite.create('./path/to/pgdata')
 
 const db = new Kysely<DB>({ dialect })
 ```
@@ -20,7 +20,7 @@ const db = new Kysely<DB>({ dialect })
 `PGlite` options can be passed in as the second parameter. See [PGlite options](https://pglite.dev/docs/api#options) for more info.
 
 ```typescript
-const { dialect } = await PGliteKysely.create('./path/to/pgdata', {
+const { dialect } = await KyselyPGlite.create('./path/to/pgdata', {
 	debug: 3,
 	relaxedDurability: true,
 })
@@ -90,9 +90,9 @@ export const migrations: Record<string, Migration> = {
 ```typescript
 // file: db.ts
 import { Kysely, Migrator } from 'kysely'
-import { PGliteKysely } from 'kysely-pglite'
+import { KyselyPGlite } from 'kysely-pglite'
 
-const { dialect } = await PGliteKysely.create()
+const { dialect } = await KyselyPGlite.create()
 export const db = new Kysely({ dialect })
 
 export const migrator = new Migrator({

@@ -1,9 +1,9 @@
 import { Kysely, Migrator } from 'kysely'
 import { describe, expect, it } from 'vitest'
-import { PGliteKysely } from '../src'
+import { KyselyPGlite } from '../src'
 
 describe('kysely migrations', async () => {
-	const { dialect } = await PGliteKysely.create()
+	const { dialect } = await KyselyPGlite.create()
 	const db = new Kysely({ dialect })
 
 	const migrator = new Migrator({
