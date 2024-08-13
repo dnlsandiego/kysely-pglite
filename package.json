@@ -1,6 +1,6 @@
 {
 	"name": "@dnlsandiego/kysely-pglite",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Kysely dialect for @electric-sql/pglite",
 	"publishConfig": {
 		"registry": "https://npm.pkg.github.com"
