@@ -20,8 +20,16 @@ export class KyselyPGlite {
    *                - A path to a local filesystem directory
    * @param options `PGliteOptions` options
    */
-  constructor(client: PGlite) {
-    this.client = client
+  constructor(client?: PGlite)
+  constructor(dataDir?: string, opts?: PGliteOptions)
+  constructor(dataDirOrClient?: string | PGlite, opts?: PGliteOptions) {
+    if (typeof dataDirOrClient === 'string') {
+      this.client = new PGlite(dataDirOrClient, opts)
+    } else if (dataDirOrClient) {
+      this.client = dataDirOrClient
+    } else {
+      this.client = new PGlite()
+    }
   }
 
   static async create(opts?: PGliteOptions): Promise<KyselyPGlite>
