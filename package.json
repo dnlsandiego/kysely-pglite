@@ -1,6 +1,6 @@
 {
 	"name": "kysely-pglite",
-	"version": "0.4.1",
+	"version": "0.5.0",
 	"description": "Kysely dialect for @electric-sql/pglite",
 	"repository": "https://github.com/dnlsandiego/kysely-pglite",
 	"keywords": [
