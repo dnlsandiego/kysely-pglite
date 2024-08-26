@@ -2,7 +2,13 @@
 
 [Kysely](https://github.com/kysely-org/kysely) dialect for [PGlite](https://github.com/electric-sql/pglite).
 
+Generate types using the provided CLI.
+
+Kysely specific wrapper over PGlite's [Live Queries](https://pglite.dev/docs/live-queries) extension to take advantage of Kysely's type-safe features.
+
 ## Usage
+
+The examples below use the static async method `await KyselyPGlite.create()` to align with the preferred way to create a PGlite instance as stated in the [PGlite docs](https://pglite.dev/docs/api#main-constructor). But an instance can still be created using the `new KyselyPGlite()` constructor.
 
 ```typescript
 import { Kysely } from 'kysely'
@@ -26,7 +32,109 @@ const { dialect } = await KyselyPGlite.create('./path/to/pgdata', {
 })
 ```
 
-### Migrations
+## Generating Types
+
+`kysely-pglite` has a CLI to generate TypeScript types. It's a wrapper around [kysely-codegen](https://github.com/RobinBlomberg/kysely-codegen) to get around its requirement of a connection to a running database.
+
+You'll need to point the `kysely-pglite` CLI to a file that exports a `Kysely` instance or to a directory that stores the persisted Postgres database.
+
+If using a Kysely instance, the CLI will look through file's exports and find the Kysely instance so the object doesn't need to be named `db` or be the only thing exported.
+
+```bash
+npx kysely-pglite ./path/to/your/db.ts
+```
+
+```bash
+npx kysely-pglite --data-dir ./path/to/pgdata
+```
+
+You can also use the `Codegen` class to have more flexibilty
+
+```typescript
+import { Codegen } from 'kysely-pglite'
+
+const { dialect } = new KyselyPGlite()
+
+const codegen = new Codegen(dialect)
+
+// See `kysely-pglite --help` for more options
+const types = await codegen.generate({
+  // Your Kysely DB
+  db,
+  outFile: './path/to/output.ts',
+})
+
+console.log(types) // stringified types
+```
+
+If you're starting fresh, you will probably need to create a temporary empty `interface DB {}` to create a Kysely instance, generate the types then update it to the generated `DB`.
+
+## `KyselyLive` Usage
+
+`KyselyLive` is a "bridge" for using PGlite's live queries extension and Kysely's type-safe features. To quickly compare:
+
+```typescript
+const ret = pg.live.query(
+  'SELECT id, price FROM sales ORDER BY rand;',
+  [],
+  (res) => {
+    // res is the same as a standard query result object
+  },
+)
+
+const pglive = new KyselyLive(pglite)
+const query = db
+  .selectFrom('sales')
+  .select(['id', 'price'])
+  .orderBy((eb) => eb.fn('rand'))
+
+for await (const data of pglive.query(query).subscribe) {
+  const [sale] = data
+  console.log(sale.id, sale.price)
+}
+```
+
+A little more fleshed out example:
+
+```typescript
+import { live } from '@electric-sql/pglite/live'
+import { KyselyPGlite, KyselyLive } from 'kysely-pglite'
+
+interface User {
+  id: Generated<number>
+  name: string
+}
+
+interface DB {
+  user: User
+}
+
+// Include the `live` extension when creating a KyselyPGlite instance. `client` here is the PGlite instance that the Dialect is using.
+const { dialect, client } = await KyselyPGlite.create({ extensions: { live } })
+
+const db = new Kysely<DB>({ dialect })
+
+// Now create a `KyselyLive` instance.
+const pglive = new KyselyLive(client)
+
+// `KyselyLive`'s methods require a `SelectQueryBuilder` from your `db` to infer the type of the data your query subscription will emit.
+const usersQuery = db.selectFrom('user').selectAll()
+const liveQuery = pglive.query(usersQuery)
+
+// subscribe to `user` table changes. `data` will be typed as `User[]`
+for await (const data of liveQuery.subscribe) {
+  const [user] = data
+  console.log(user.id, user.name)
+}
+
+// To `unsubscribe` from the query:
+liveQuery.unsubscribe()
+
+// To manually refresh the query:
+liveQuery.refresh()
+```
+
+## Migrations
 
 Kysely migrations work well with `PGlite`. See example setup below:
 
@@ -150,8 +258,6 @@ yarn add @electric-sql/pglite kysely-pglite
 > This dialect has not been tested on Deno yet.
 
 ## Todos
-
-- Investigate possible ways to integrate [PGlite](https://github.com/electric-sql/pglite)'s [live query API](https://github.com/electric-sql/pglite/pull/104) with Kysely
 
 - Verify browser usage. `kysely` and `pglite` both work in browser
 
