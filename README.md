@@ -2,7 +2,11 @@
 
 [Kysely](https://github.com/kysely-org/kysely) dialect for [PGlite](https://github.com/electric-sql/pglite).
 
+PGlite's [Live Queries](https://pglite.dev/docs/live-queries) extension can also be integrated with Kysely through a [AsyncIterator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncIterator) based class (`KyselyLive`) to take advantage of Kysely's type-safe features. See examples:
+
 ## Usage
+
+The examples below use the static async method `await KyselyPGlite.create()` to align with the preferred way to create a PGlite instance as stated in the [PGlite docs](https://pglite.dev/docs/api#main-constructor). But an instance can still be created using the `new KyselyPGlite()` constructor.
 
 ```typescript
 import { Kysely } from 'kysely'
@@ -24,6 +28,46 @@ const { dialect } = await KyselyPGlite.create('./path/to/pgdata', {
   debug: 3,
   relaxedDurability: true,
 })
+```
+
+### `KyselyLive` Usage
+
+```typescript
+import { live } from '@electric-sql/pglite/live'
+import { KyselyPGlite, KyselyLive } from 'kysely-pglite'
+
+interface User {
+  id: Generated<number>
+  name: string
+}
+
+interface DB {
+  user: User
+}
+
+// Include the `live` extension when creating a KyselyPGlite instance. `client` here is the PGlite instance that the Dialect is using.
+const { dialect, client } = await KyselyPGlite.create({ extensions: { live } })
+
+const db = new Kysely<DB>({ dialect })
+
+// Now create a `KyselyLive` instance.
+const pglive = new KyselyLive(client)
+
+// `KyselyLive`'s methods require a `SelectQueryBuilder` from your `db` to infer the type of the data your query subscription will emit.
+const usersQuery = db.selectFrom('user').selectAll()
+const liveQuery = pglive.query(usersQuery)
+
+// subscribe to `user` table changes. `data` will be typed as `User[]`
+for await (const data of liveQuery.subscribe) {
+  const [user] = data
+  console.log(user.id, user.name)
+}
+
+// To `unsubscribe` from the query:
+liveQuery.unsubscribe()
+
+// To manually refresh the query:
+liveQuery.refresh()
 ```
 
 ### Migrations

@@ -1,52 +1,53 @@
 {
-	"name": "kysely-pglite",
-	"version": "0.5.0",
-	"description": "Kysely dialect for @electric-sql/pglite",
-	"repository": "https://github.com/dnlsandiego/kysely-pglite",
-	"keywords": [
-		"@electric-sql/pglite",
-		"kysely",
-		"postgresql",
-		"wasm",
-		"database",
-		"sql"
-	],
-	"license": "MIT",
-	"type": "module",
-	"main": "./dist/index.cjs",
-	"module": "./dist/index.mjs",
-	"types": "./dist/index.d.cts",
-	"packageManager": "pnpm@8.14.2",
-	"scripts": {
-		"build": "pkgroll --clean-dist --sourcemap",
-		"prepublishOnly": "pnpm run build",
-		"format": "prettier ./src --write",
-		"test": "vitest"
-	},
-	"files": [
-		"dist"
-	],
-	"exports": {
-		"require": {
-			"types": "./dist/index.d.cts",
-			"default": "./dist/index.cjs"
-		},
-		"import": {
-			"types": "./dist/index.d.mts",
-			"default": "./dist/index.mjs"
-		}
-	},
-	"peerDependencies": {
-		"@electric-sql/pglite": "*",
-		"kysely": "*"
-	},
-	"devDependencies": {
-		"@electric-sql/pglite": "^0.2.0",
-		"kysely": "^0.27.4",
-		"pkgroll": "^2.1.1",
-		"prettier": "^3.3.3",
-		"typescript": "^5.0.0",
-		"vitest": "^2.0.3"
-	},
-	"author": "Daniel Sandiego"
+  "name": "kysely-pglite",
+  "version": "0.5.0",
+  "description": "Kysely dialect for @electric-sql/pglite",
+  "repository": "https://github.com/dnlsandiego/kysely-pglite",
+  "keywords": [
+    "@electric-sql/pglite",
+    "kysely",
+    "postgresql",
+    "wasm",
+    "database",
+    "sql"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "packageManager": "pnpm@8.14.2",
+  "scripts": {
+    "build": "pkgroll --clean-dist --sourcemap",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm run build",
+    "format": "prettier ./src --write",
+    "test": "vitest"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "peerDependencies": {
+    "@electric-sql/pglite": "*",
+    "kysely": "*"
+  },
+  "devDependencies": {
+    "@repeaterjs/repeater": "^3.0.6",
+    "@types/node": "^22.5.0",
+    "pkgroll": "^2.1.1",
+    "prettier": "^3.3.3",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.3"
+  },
+  "author": "Daniel Sandiego"
 }
