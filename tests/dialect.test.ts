@@ -1,6 +1,5 @@
-import { Generated, Kysely } from 'kysely'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { KyselyPGlite } from '../src'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { GroceriesDatabase } from './groceries-db'
 
 const pgSchemas = [
   { name: 'information_schema' },
@@ -10,22 +9,12 @@ const pgSchemas = [
 ]
 
 describe('kysely dialect', async () => {
-  const { dialect } = new KyselyPGlite()
-  const db = new Kysely<DB>({ dialect })
+  const groceriesDb = new GroceriesDatabase()
 
-  type DB = {
-    groceries: {
-      id: Generated<number>
-      name: string
-    }
-  }
+  const db = groceriesDb.db
 
   beforeEach(async () => {
-    await db.schema
-      .createTable('groceries')
-      .addColumn('id', 'serial', (cb) => cb.primaryKey())
-      .addColumn('name', 'text', (cb) => cb.notNull())
-      .execute()
+    await groceriesDb.createTables()
   })
 
   afterEach(async () => {

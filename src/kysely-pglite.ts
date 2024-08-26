@@ -12,7 +12,7 @@ import {
   type Dialect,
 } from 'kysely'
 
-import { PGliteDriver } from './pglite-driver'
+import { PGliteDriver } from './pglite-driver.js'
 
 export class KyselyPGlite<O extends PGliteOptions> {
   client!: PGlite & PGliteInterfaceExtensions<O['extensions']>
@@ -24,45 +24,49 @@ export class KyselyPGlite<O extends PGliteOptions> {
    *                - A path to a local filesystem directory
    * @param options `PGliteOptions` options
    */
-  constructor(client?: PGlite)
+
   constructor(dataDir?: string, opts?: O)
-  constructor(dataDirOrClient?: string | PGlite, opts?: O) {
+  constructor(options?: O)
+  constructor(client?: PGlite)
+  constructor(dataDirOrClient?: string | PGlite | O, opts?: O) {
     if (typeof dataDirOrClient === 'string') {
       // @ts-expect-error
       this.client = new PGlite(dataDirOrClient, opts)
-    } else if (dataDirOrClient) {
-      // @ts-expect-error
-      this.client = dataDirOrClient
+    } else if (typeof dataDirOrClient === 'object') {
+      if (dataDirOrClient instanceof PGlite) {
+        // @ts-expect-error
+        this.client = dataDirOrClient
+      } else {
+        // @ts-expect-error
+        this.client = new PGlite(dataDirOrClient)
+      }
     } else {
       // @ts-expect-error
       this.client = new PGlite()
     }
   }
-  //static create<O extends PGliteOptions>(options?: O): Promise<PGlite & PGliteInterfaceExtensions<O['extensions']>>;
-  static async create<O extends PGliteOptions>(
-    opts?: O,
-  ): Promise<KyselyPGlite<O>>
+
   static async create<O extends PGliteOptions>(
     dataDir?: string,
-    opts?: O,
+    options?: PGliteOptions,
   ): Promise<KyselyPGlite<O>>
   static async create<O extends PGliteOptions>(
-    arg1?: string | O,
-    arg2?: O,
-  ): Promise<KyselyPGlite<O>> {
-    // @ts-expect-error
-    let opts: O = {}
-    if (typeof arg1 === 'string') {
-      opts.dataDir = arg1
-      if (typeof arg2 === 'object') {
-        opts = { ...opts, ...arg2 }
-      }
+    options?: PGliteOptions,
+  ): Promise<KyselyPGlite<O>>
+  static async create(
+    dataDirOrPGliteOptions: string | PGliteOptions = {},
+    options: PGliteOptions = {},
+  ) {
+    let opts = options
+
+    if (typeof dataDirOrPGliteOptions === 'string') {
+      opts.dataDir = dataDirOrPGliteOptions
+    } else {
+      opts = { ...options, ...dataDirOrPGliteOptions }
     }
-    if (typeof arg1 === 'object') {
-      opts = arg1
-    }
-    const pglite = await PGlite.create<O>(opts)
-    return new KyselyPGlite<O>(pglite)
+
+    const pglite = await PGlite.create(opts)
+    return new KyselyPGlite(pglite)
   }
 
   dialect: Dialect = {
