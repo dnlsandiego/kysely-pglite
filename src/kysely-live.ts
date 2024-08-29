@@ -5,21 +5,31 @@ import type { ReferenceExpression } from 'kysely'
 import { type SelectQueryBuilder } from 'kysely'
 /**
  * Wrapper for PGlite's Live Queries extension
+ * @example
+ * const pglive = new KyselyLive(pglite)
+ * const query = db
+ *   .selectFrom('sales')
+ *   .select(['id', 'price'])
+ *   .orderBy((eb) => eb.fn('rand'))
+ * const liveQuery = pglive.query(query)
+ * 
+ * for await (const data of liveQuery.subscribe) {
+ *   const [sale] = data
+ *   console.log(sale.id, sale.price)
+}
  */
 export class KyselyLive {
   private live: PGliteWithLive['live']
 
-  constructor(public pglite: PGliteWithLive) {
+  constructor(pglite: PGliteWithLive) {
     this.live = pglite.live
   }
 
   query<DB, TB extends keyof DB, O>(builder: SelectQueryBuilder<DB, TB, O>) {
     const { sql, parameters } = builder.compile()
 
-    return this.createLiveRepeater<O>(async (push) => {
-      return await this.live.query<O>(sql, [...parameters], (data) =>
-        push(data.rows),
-      )
+    return this.createLiveRepeater<O>((push) => {
+      return this.live.query<O>(sql, [...parameters], (data) => push(data.rows))
     })
   }
 
@@ -31,10 +41,8 @@ export class KyselyLive {
 
     assertString(ref, '`changes` received invalid key')
 
-    type Change = ReturnType<typeof this.live.changes>
-
-    return this.createLiveRepeater<O>(async (push) => {
-      return await this.live.changes<O>(sql, [...parameters], ref, (data) =>
+    return this.createLiveRepeater<O>((push) => {
+      return this.live.changes<O>(sql, [...parameters], ref, (data) =>
         push(data),
       )
     })
@@ -48,12 +56,9 @@ export class KyselyLive {
 
     assertString(ref, '`incrementalQuery` received invalid key')
 
-    return this.createLiveRepeater<O>(async (push) => {
-      return await this.live.incrementalQuery<O>(
-        sql,
-        [...parameters],
-        ref,
-        (data) => push(data.rows),
+    return this.createLiveRepeater<O>((push) => {
+      return this.live.incrementalQuery<O>(sql, [...parameters], ref, (data) =>
+        push(data.rows),
       )
     })
   }
@@ -70,18 +75,12 @@ export class KyselyLive {
     const subscribe = new Repeater<O[]>(async (push, stop) => {
       const res = await liveMethod((data) => push(data))
 
-      // Store the refresh and unsubscribe functions for external access
       refresh = res.refresh
       unsubscribe = res.unsubscribe
 
-      // Handle the stop signal to clean up the live query subscription
-      stop.then(() => {
-        res.unsubscribe() // Ensure that we unsubscribe when the Repeater stops
-      })
+      await stop
 
-      return () => {
-        res.unsubscribe() // Ensure cleanup if Repeater completes or errors
-      }
+      res.unsubscribe()
     })
 
     return {

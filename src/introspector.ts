@@ -3,6 +3,7 @@ import {
   DatabaseMetadata,
   EnumCollection,
   Introspector,
+  TableMatcher,
   type ConnectOptions,
   type IntrospectOptions,
 } from 'kysely-codegen'
@@ -18,19 +19,19 @@ export class KyselyPGliteIntrospector extends Introspector<any> {
   protected async getTables(options: IntrospectOptions<any>) {
     let tables = await options.db.introspection.getTables()
 
-    // if (options.includePattern) {
-    //   const tableMatcher = new TableMatcher(options.includePattern)
-    //   tables = tables.filter(({ name, schema }) =>
-    //     tableMatcher.match(schema, name),
-    //   )
-    // }
+    if (options.includePattern) {
+      const tableMatcher = new TableMatcher(options.includePattern)
+      tables = tables.filter(({ name, schema }) =>
+        tableMatcher.match(schema, name),
+      )
+    }
 
-    // if (options.excludePattern) {
-    //   const tableMatcher = new TableMatcher(options.excludePattern)
-    //   tables = tables.filter(
-    //     ({ name, schema }) => !tableMatcher.match(schema, name),
-    //   )
-    // }
+    if (options.excludePattern) {
+      const tableMatcher = new TableMatcher(options.excludePattern)
+      tables = tables.filter(
+        ({ name, schema }) => !tableMatcher.match(schema, name),
+      )
+    }
 
     return tables
   }
