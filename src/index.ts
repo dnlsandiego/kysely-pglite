@@ -1,5 +1,5 @@
-export * from './kysely-pglite.js'
+export { KyselyPGlite } from './kysely-pglite.js'
 
-export * from './kysely-live.js'
+export { KyselyLive } from './kysely-live.js'
 
-export * from './codegen.js'
+export { Codegen } from './codegen.js'

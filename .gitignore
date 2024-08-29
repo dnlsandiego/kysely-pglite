@@ -177,3 +177,6 @@ dist
 pgdata/
 
 .npmrc
+lab
+.vscode
+.arc/

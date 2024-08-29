@@ -4,6 +4,9 @@ import {
   type PGliteOptions,
 } from '@electric-sql/pglite'
 
+import { ensureDataDirExist } from '#utils/create-kysely.js'
+import { isString } from '@sindresorhus/is'
+import fs from 'fs-extra'
 import {
   Kysely,
   PostgresAdapter,
@@ -11,7 +14,6 @@ import {
   PostgresQueryCompiler,
   type Dialect,
 } from 'kysely'
-
 import { PGliteDriver } from './pglite-driver.js'
 
 export class KyselyPGlite<O extends PGliteOptions> {
@@ -29,6 +31,8 @@ export class KyselyPGlite<O extends PGliteOptions> {
   constructor(options?: O)
   constructor(client?: PGlite)
   constructor(dataDirOrClient?: string | PGlite | O, opts?: O) {
+    ensureDataDirExist(dataDirOrClient)
+
     if (typeof dataDirOrClient === 'string') {
       // @ts-expect-error
       this.client = new PGlite(dataDirOrClient, opts)
@@ -38,11 +42,11 @@ export class KyselyPGlite<O extends PGliteOptions> {
         this.client = dataDirOrClient
       } else {
         // @ts-expect-error
-        this.client = new PGlite(dataDirOrClient)
+        this.client = new PGlite(dataDirOrClient, opts)
       }
     } else {
       // @ts-expect-error
-      this.client = new PGlite()
+      this.client = new PGlite(dataDirOrClient, opts)
     }
   }
 
@@ -53,11 +57,12 @@ export class KyselyPGlite<O extends PGliteOptions> {
   static async create<O extends PGliteOptions>(
     options?: PGliteOptions,
   ): Promise<KyselyPGlite<O>>
-  static async create(
+  static async create<O extends PGliteOptions>(
     dataDirOrPGliteOptions: string | PGliteOptions = {},
     options: PGliteOptions = {},
-  ) {
+  ): Promise<KyselyPGlite<O>> {
     let opts = options
+    ensureDataDirExist(dataDirOrPGliteOptions)
 
     if (typeof dataDirOrPGliteOptions === 'string') {
       opts.dataDir = dataDirOrPGliteOptions
@@ -66,7 +71,7 @@ export class KyselyPGlite<O extends PGliteOptions> {
     }
 
     const pglite = await PGlite.create(opts)
-    return new KyselyPGlite(pglite)
+    return new KyselyPGlite<O>(pglite)
   }
 
   dialect: Dialect = {

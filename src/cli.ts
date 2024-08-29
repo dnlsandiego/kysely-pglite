@@ -1,96 +1,185 @@
-#!/usr/bin/env node
+import { Codegen } from '#codegen.js'
+import { DEFAULT_OUT_FILE, pgDataFiles } from '#constants.js'
+import { applyLogsPatch } from '#utils/apply-logs-patch.js'
+import { createKyselyPGlite } from '#utils/create-kysely.js'
+import { createMigrator } from '#utils/create-migrator.js'
+import { getDatabaseErrorInfo } from '#utils/get-database-error-info.js'
+import { Args, Command, Flags } from '@oclif/core'
+import { isError } from '@sindresorhus/is'
+import chokidar from 'chokidar'
+import consola from 'consola'
+import { colorize } from 'consola/utils'
+import { lstatSync } from 'fs'
+import fs from 'fs-extra'
+import { group } from 'radash'
 
-import type { PGliteOptions } from '@electric-sql/pglite'
-import { cli } from 'cleye'
-import { createJiti } from 'jiti'
-import { Kysely } from 'kysely'
-import { DEFAULT_OUT_FILE } from 'kysely-codegen'
-import { Codegen } from './codegen.js'
-import { KyselyPGlite } from './kysely-pglite.js'
-import { isDirectory } from './utils/is-directory.js'
+// Patching console.log and console.warn because of noisy logs from @electic/pglite
+// https://github.com/electric-sql/pglite/issues/256
+applyLogsPatch()
 
-const jiti = createJiti(import.meta.filename, {})
+export default class CodegenCommand extends Command {
+  static override args = {
+    path: Args.string({
+      required: true,
+      parse: async (path) => {
+        const stat = lstatSync(path, { throwIfNoEntry: false })
+        if (!stat?.isDirectory() && !stat?.isFile()) {
+          throw new Error(
+            `${path} is an invalid path. It doesn't resolve to a file or directory`,
+          )
+        }
+        return path
+      },
+      description:
+        'The path to a file/directory of Kysely migrations or a persisted PGlite database',
+    }),
+  }
 
-const argv = cli({
-  name: 'kysely-pglite',
+  static override description =
+    'Generate TypeScript types based on Kysely migrations or a persisted PGlite database'
 
-  parameters: ['<database>'],
+  static override examples = [
+    '<%= config.bin %> <%= command.id %> ./src/db/migrations --out-file ./src/db/types.ts',
+    '<%= config.bin %> <%= command.id %> ./src/db/migrations-file.ts',
+    '<%= config.bin %> <%= command.id %> ./pgdata',
+    '<%= config.bin %> <%= command.id %> --watch ./src/db/migrations',
+  ]
 
-  flags: {
-    camelCase: {
-      type: Boolean,
+  static override flags = {
+    watch: Flags.boolean({
+      char: 'w',
+      default: false,
+      description:
+        'Watches the given path and generates types whenever a change is detected',
+    }),
+    outFile: Flags.string({
+      char: 'o',
+      description: 'Path to persist the generated types',
+      default: DEFAULT_OUT_FILE,
+    }),
+    camelCase: Flags.boolean({
       description: 'Use the Kysely CamelCasePlugin',
-    },
-    dialect: {
-      type: String,
-      description: 'Set the SQL dialect',
-      options: ['postgres', 'mysql', 'sqlite', 'mssql', 'libsql', 'bun-sqlite'],
-    },
-    envFile: {
-      type: String,
-      description: 'Specify the path to an environment file to use',
-    },
-    excludePattern: {
-      type: String,
+    }),
+    envFile: Flags.directory({
+      description: 'The path to an environment file to use',
+    }),
+    excludePattern: Flags.string({
       description: 'Exclude tables matching the specified glob pattern',
-    },
-    includePattern: {
-      type: String,
+    }),
+    includePattern: Flags.string({
       description: 'Only include tables matching the specified glob pattern',
-    },
-    logLevel: {
-      type: String,
+    }),
+    logLevel: Flags.string({
       description: 'Set the terminal log level',
       options: ['debug', 'info', 'warn', 'error', 'silent'],
-      default: 'warn',
-    },
-    outFile: {
-      type: String,
-      description: 'Set the file build path',
-      default: DEFAULT_OUT_FILE,
-    },
-    print: {
-      type: Boolean,
+    }),
+    print: Flags.boolean({
       description: 'Print the generated output to the terminal',
-    },
-    runtimeEnums: {
-      type: Boolean,
+      char: 'p',
+    }),
+    runtimeEnums: Flags.boolean({
       description: 'Generate runtime enums instead of string unions',
-    },
-    typeOnlyImports: {
-      type: Boolean,
+    }),
+    typeOnlyImports: Flags.boolean({
       description: 'Generate TypeScript 3.8+ `import type` syntax',
       default: true,
-    },
-    verify: {
-      type: Boolean,
+    }),
+    verify: Flags.boolean({
       description: 'Verify that the generated types are up-to-date',
       default: false,
-    },
-  },
-})
-
-const [database] = argv._
-
-async function getDatabase(database: string) {
-  const isDir = await isDirectory(database)
-  const opts: PGliteOptions = { dataDir: isDir ? database : undefined }
-  const { dialect } = await KyselyPGlite.create(opts)
-
-  if (isDir) {
-    return { db: new Kysely<any>({ dialect }), dialect }
+    }),
+    noDomain: Flags.boolean({
+      description: 'Skip generating types for PostgreSQL domains',
+      default: false,
+    }),
   }
-  // @ts-expect-error
-  const { db } = await jiti.import(database, {})
 
-  return { db: db as Kysely<any>, dialect }
+  private async isDataDir(path: string) {
+    const stat = lstatSync(path)
+    if (!stat.isDirectory()) {
+      return false
+    }
+    const files = await fs.readdir(path, {
+      encoding: 'utf-8',
+      withFileTypes: true,
+    })
+    return files.some((f) => pgDataFiles.includes(f.name))
+  }
+
+  private async runCodegen() {
+    const {
+      args,
+      flags: { watch, ...flags },
+    } = await this.parse(CodegenCommand)
+    const isDataDir = await this.isDataDir(args.path)
+    const { db, dialect } = await createKyselyPGlite(
+      isDataDir ? args.path : undefined,
+    )
+    const codegen = new Codegen(dialect)
+    const migrator = await createMigrator(db, args.path)
+
+    if (isDataDir) {
+      await codegen.generate({ ...flags, db })
+    } else {
+      const { results = [], error } = await migrator.migrateToLatest()
+      const { Success = [], Error = [] } = group(results, (r) => r.status)
+
+      if (Success.length) {
+        await codegen.generate({ ...flags, db })
+      }
+
+      if (isError(error)) {
+        const [migration] = Error
+        const { message, hint } = getDatabaseErrorInfo(error)
+        this.error(`${message} in ${migration.migrationName}`, {
+          suggestions: hint ? [hint] : [],
+        })
+      }
+    }
+
+    return db
+  }
+
+  public async run(): Promise<void> {
+    const { args, flags } = await this.parse(CodegenCommand)
+
+    consola.start('Introspecting database...')
+
+    const db = await this.runCodegen()
+    const tables = await db.introspection.getTables()
+    consola.success(
+      `Introspected ${tables.length} tables. Generated types in ${colorize('underline', flags.outFile)}`,
+    )
+
+    if (flags.watch) {
+      // https://oclif.io/docs/commands/#avoiding-timeouts
+      return new Promise(() => {
+        consola.start(
+          `Watching changes in ${colorize('underline', args.path)}...`,
+        )
+        const watcher = chokidar.watch(args.path, {
+          ignored: /(^|[\/\\])\../, // ignore dotfiles
+          ignoreInitial: true,
+        })
+
+        const watcherFn = async (event: string, path: string) => {
+          await this.runCodegen()
+          consola.info(
+            `${event} File: ${colorize('underline', path)}. Types updated`,
+          )
+        }
+
+        watcher
+          .on('add', async (path) =>
+            watcherFn(colorize('blueBright', '[added]'), path),
+          )
+          .on('change', async (path) =>
+            watcherFn(colorize('cyan', '[changed]'), path),
+          )
+          .on('unlink', async (path) =>
+            watcherFn(colorize('magenta', '[deleted]'), path),
+          )
+      })
+    }
+  }
 }
-
-const { db, dialect } = await getDatabase(database)
-
-const codegen = new Codegen(dialect)
-
-await codegen.generate({
-  db,
-  outFile: argv.flags.outFile,
-})

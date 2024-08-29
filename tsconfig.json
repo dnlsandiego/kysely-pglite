@@ -1,17 +1,24 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "baseUrl": "./",
+    "paths": {
+      "#*": ["./src/*"]
+    },
     "lib": ["ESNext"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "module": "Preserve",
+    "moduleDetection": "force",
     "resolveJsonModule": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "strictNullChecks": true,
-    "esModuleInterop": true,
-    "inlineSourceMap": true,
+    "sourceMap": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
+    "isolatedModules": true,
+    "declaration": true,
     "outDir": "./dist"
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["src"]
 }

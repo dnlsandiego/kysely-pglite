@@ -13,9 +13,7 @@ export class KyselyPGliteIntrospector extends Introspector<any> {
   async connect(options: ConnectOptions): Promise<Kysely<any>> {
     const { dialect } = new KyselyPGlite()
 
-    const db = new Kysely({ dialect })
-
-    return db
+    return new Kysely({ dialect })
   }
 
   protected async getTables(options: IntrospectOptions<any>) {
