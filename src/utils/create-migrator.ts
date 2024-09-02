@@ -8,7 +8,7 @@ const jiti = createJiti(import.meta.filename, {
   moduleCache: false,
 })
 
-export async function createMigrator(db: Kysely<any>, migrationsPath: string) {
+export function createMigrator(db: Kysely<any>, migrationsPath: string) {
   return new Migrator({
     db,
     provider: {

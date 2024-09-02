@@ -13,7 +13,7 @@ export function ensureDataDirExist(dataDir?: string | PGliteOptions) {
     path = dataDir.dataDir
   }
   if (path) {
-    const fo = fs.ensureDir(path)
+    fs.ensureDir(path)
   }
 }
 

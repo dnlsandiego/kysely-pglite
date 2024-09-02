@@ -3,6 +3,8 @@ import { Repeater } from '@repeaterjs/repeater'
 import { assertString } from '@sindresorhus/is'
 import type { ReferenceExpression } from 'kysely'
 import { type SelectQueryBuilder } from 'kysely'
+import type { Change } from './types.js'
+
 /**
  * Wrapper for PGlite's Live Queries extension
  * @example
@@ -28,7 +30,7 @@ export class KyselyLive {
   query<DB, TB extends keyof DB, O>(builder: SelectQueryBuilder<DB, TB, O>) {
     const { sql, parameters } = builder.compile()
 
-    return this.createLiveRepeater<O>((push) => {
+    return this.createLiveRepeater<O[]>((push) => {
       return this.live.query<O>(sql, [...parameters], (data) => push(data.rows))
     })
   }
@@ -41,8 +43,8 @@ export class KyselyLive {
 
     assertString(ref, '`changes` received invalid key')
 
-    return this.createLiveRepeater<O>((push) => {
-      return this.live.changes<O>(sql, [...parameters], ref, (data) =>
+    return this.createLiveRepeater<Change<O>[]>((push) => {
+      return this.live.changes<Change<O>>(sql, [...parameters], ref, (data) =>
         push(data),
       )
     })
@@ -56,7 +58,7 @@ export class KyselyLive {
 
     assertString(ref, '`incrementalQuery` received invalid key')
 
-    return this.createLiveRepeater<O>((push) => {
+    return this.createLiveRepeater<O[]>((push) => {
       return this.live.incrementalQuery<O>(sql, [...parameters], ref, (data) =>
         push(data.rows),
       )
@@ -64,7 +66,7 @@ export class KyselyLive {
   }
 
   private createLiveRepeater<O>(
-    liveMethod: (callback: (data: O[]) => void) => Promise<{
+    liveMethod: (callback: (data: O) => void) => Promise<{
       refresh: () => Promise<void>
       unsubscribe: () => Promise<void>
     }>,
@@ -72,14 +74,18 @@ export class KyselyLive {
     let refresh: () => Promise<void>
     let unsubscribe: () => Promise<void>
 
-    const subscribe = new Repeater<O[]>(async (push, stop) => {
+    const subscribe = new Repeater<O>(async (push, stop) => {
       const res = await liveMethod((data) => push(data))
 
       refresh = res.refresh
       unsubscribe = res.unsubscribe
 
       await stop
-
+      /**
+       * This will be reached if:
+       * - a `break` statement is used in a `forof await` loop
+       * - an error is thrown inside the `forof await` loop
+       */
       res.unsubscribe()
     })
 

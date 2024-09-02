@@ -54,22 +54,28 @@ export default class CodegenCommand extends Command {
     }),
     outFile: Flags.string({
       char: 'o',
+      aliases: ['out-file'],
       description: 'Path to persist the generated types',
       default: DEFAULT_OUT_FILE,
     }),
     camelCase: Flags.boolean({
+      aliases: ['camel-case'],
       description: 'Use the Kysely CamelCasePlugin',
     }),
     envFile: Flags.directory({
+      aliases: ['env-file'],
       description: 'The path to an environment file to use',
     }),
     excludePattern: Flags.string({
+      aliases: ['exclude-pattern'],
       description: 'Exclude tables matching the specified glob pattern',
     }),
     includePattern: Flags.string({
+      aliases: ['include-pattern'],
       description: 'Only include tables matching the specified glob pattern',
     }),
     logLevel: Flags.string({
+      aliases: ['log-level'],
       description: 'Set the terminal log level',
       options: ['debug', 'info', 'warn', 'error', 'silent'],
     }),
@@ -78,9 +84,11 @@ export default class CodegenCommand extends Command {
       char: 'p',
     }),
     runtimeEnums: Flags.boolean({
+      aliases: ['runtime-enums'],
       description: 'Generate runtime enums instead of string unions',
     }),
     typeOnlyImports: Flags.boolean({
+      aliases: ['type-only-imports'],
       description: 'Generate TypeScript 3.8+ `import type` syntax',
       default: true,
     }),
@@ -89,6 +97,7 @@ export default class CodegenCommand extends Command {
       default: false,
     }),
     noDomain: Flags.boolean({
+      aliases: ['no-domain'],
       description: 'Skip generating types for PostgreSQL domains',
       default: false,
     }),
