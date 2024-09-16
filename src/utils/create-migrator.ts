@@ -18,7 +18,7 @@ export function createMigrator(db: Kysely<any>, migrationsPath: string) {
             files: ['*.ts', '*.js'],
           },
 
-          ignore: ['**/types.ts'],
+          ignore: ['**/types.ts', '**/*.d.ts'],
           objectMode: true,
           absolute: true,
         })
