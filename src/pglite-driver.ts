@@ -50,9 +50,14 @@ class PGliteConnection implements DatabaseConnection {
   async executeQuery<R>(
     compiledQuery: CompiledQuery<any>,
   ): Promise<QueryResult<R>> {
-    return await this.#client.query<R>(compiledQuery.sql, [
+    const res = await this.#client.query<R>(compiledQuery.sql, [
       ...compiledQuery.parameters,
     ])
+
+    return {
+      numAffectedRows: BigInt(res.affectedRows ?? 0),
+      rows: res.rows,
+    }
   }
 
   async *streamQuery(): AsyncGenerator<never, void, unknown> {
