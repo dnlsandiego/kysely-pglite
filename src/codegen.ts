@@ -1,18 +1,12 @@
 import type { Dialect } from 'kysely'
-import {
-  Generator,
-  PostgresAdapter,
-  type GenerateOptions,
-} from 'kysely-codegen'
+import { generate, PostgresAdapter, type GenerateOptions } from 'kysely-codegen'
 import { KyselyPGliteIntrospector } from './introspector.js'
 
 export class Codegen {
   constructor(public dialect: Dialect) {}
 
   async generate(opts: Omit<GenerateOptions, 'dialect'>) {
-    const generator = new Generator()
-
-    return await generator.generate({
+    return await generate({
       ...opts,
       dialect: {
         adapter: new PostgresAdapter(),
