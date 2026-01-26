@@ -4,10 +4,11 @@ import {
   EnumCollection,
   Introspector,
   TableMatcher,
-  type ConnectOptions,
   type IntrospectOptions,
 } from 'kysely-codegen'
 import { KyselyPGlite } from './kysely-pglite.js'
+
+type ConnectOptions = Parameters<Introspector<any>['connect']>[0]
 
 export class KyselyPGliteIntrospector extends Introspector<any> {
   async connect(options: ConnectOptions): Promise<Kysely<any>> {
@@ -39,6 +40,6 @@ export class KyselyPGliteIntrospector extends Introspector<any> {
   async introspect(options: IntrospectOptions<any>): Promise<DatabaseMetadata> {
     const tables = await this.getTables(options)
     const enums = new EnumCollection()
-    return new DatabaseMetadata(tables, enums)
+    return new DatabaseMetadata({ tables, enums })
   }
 }
