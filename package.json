@@ -46,25 +46,25 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.5.0",
-    "prettier": "^3.3.3",
-    "rimraf": "^6.0.1",
-    "tsx": "^4.19.0",
-    "type-fest": "^4.25.0",
-    "typescript": "^5.5.4",
-    "vitest": "^2.0.5"
+    "@types/node": "^22.19.7",
+    "prettier": "^3.8.1",
+    "rimraf": "^6.1.2",
+    "tsx": "^4.21.0",
+    "type-fest": "^4.41.0",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
-    "@oclif/core": "^4.0.19",
+    "@oclif/core": "^4.8.0",
     "@repeaterjs/repeater": "^3.0.6",
-    "@sindresorhus/is": "^7.0.0",
+    "@sindresorhus/is": "^7.2.0",
     "chokidar": "^3.6.0",
-    "consola": "^3.2.3",
-    "fs-extra": "^11.2.0",
-    "globby": "^14.0.2",
+    "consola": "^3.4.2",
+    "fs-extra": "^11.3.3",
+    "globby": "^14.1.0",
     "jiti": "2.0.0-beta.3",
     "kysely-codegen": "^0.19.0",
-    "radash": "^12.1.0"
+    "radash": "^12.1.1"
   },
   "bin": {
     "kysely-pglite": "./bin/run.js",
